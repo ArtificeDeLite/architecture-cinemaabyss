@@ -43,7 +43,9 @@ def send_to_kafka(event: Dict[str, Any], topic: str) -> None:
             value=data,
             callback=delivery_report
         )
-        producer.poll(0)
+        for _ in range(5):
+            producer.poll(0.1)
+
     except Exception as e:
         logger.exception(f"Error producing message: {e}")
         raise
@@ -70,7 +72,7 @@ def kafka_consumer_loop() -> None:
 
             try:
                 event = json.loads(msg.value().decode("utf-8"))
-                logger.info(f"Received event from Kafka: {event}")
+                logger.info(f"Received event from Kafka ({msg.topic()}): {event}")
             except Exception as e:
                 logger.exception(f"Failed to parse message from Kafka: {e}")
     finally:
