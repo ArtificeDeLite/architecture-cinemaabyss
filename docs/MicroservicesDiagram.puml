@@ -1,0 +1,62 @@
+@startuml
+title Cinemaabyss microservices Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(userPC, "PC User", "A user of the cinema abyss system")
+Person(userMobile, "Mobile User", "A user of the cinema abyss system")
+Person(userTV, "Smart TV User", "A user of the cinema abyss system")
+System(CinemaAbyssSystem, "Cinema Abyss System", "Online Cinema")
+
+Container_Boundary(CinemaAbyssSystem, "Cinema Abyss System") {
+  Container(WebApp, "Web Application", "Java, Spring", "Handles user interactions")
+  Container(MobileApp, "Mobile Application", "Kotlin", "Handles mobile user interactions")
+  Container(SmartTVApp, "Smart TV Application", "Kotlin", "Handles smart TV user interactions")
+  Container(APIGateway, "API Gateway", "", "Handles routing to services")
+  Container(PaymentService, "Payments Service", "Python", "Manages payments")
+  Container(RecommendationService, "Recommendation Service", "Python", "Manages recommendations")
+  Container(UserService, "User Service", "Python", "Manages users")
+  Container(MoviesService, "Movies Service", "Python", "Manages movies")
+  Container(SubscriptionService, "Subscription Service", "Python", "Manages subscriptions")
+  Container(DiscountService, "Discount Service", "Python", "Manages discounts")
+  Container(Events, "Events Broker", "Kafka", "Process events")
+  Container(Database, "Database", "PostgreSQL", "Stores user data, movies data, payments data, etc.")
+}
+
+System_Ext(payments, "Payment system", "External payment system")
+System_Ext(cinemas, "Cinema system", "External cinema system")
+System_Ext(recommendations, "Recommendation system", "External recommendation system")
+
+Rel(userPC, WebApp, "Uses the system")
+Rel(userMobile, MobileApp, "Uses the system")
+Rel(userTV, SmartTVApp, "Uses the system")
+
+Rel(WebApp, APIGateway, "Send requests")
+Rel(MobileApp, APIGateway, "Send requests")
+Rel(SmartTVApp, APIGateway, "Send requests")
+
+Rel(APIGateway, PaymentService, "Manages requests")
+Rel(APIGateway, UserService, "Manages requests")
+Rel(APIGateway, RecommendationService, "Manages requests")
+Rel(APIGateway, MoviesService, "Manages requests")
+Rel(APIGateway, SubscriptionService, "Manages requests")
+Rel(APIGateway, DiscountService, "Manages requests")
+
+Rel(Events, UserService, "Get user events")
+Rel(Events, PaymentService, "Get payment events")
+Rel(Events, MoviesService, "Get movies events")
+Rel(Events, SubscriptionService, "Get subscription events")
+
+Rel(PaymentService, Database, "Reads/Writes payment data")
+Rel(UserService, Database, "Reads/Writes user data")
+Rel(RecommendationService, Database, "Reads/Writes recommendation data")
+Rel(MoviesService, Database, "Reads/Writes movies data")
+Rel(SubscriptionService, Database, "Reads/Writes subscription data")
+Rel(DiscountService, Database, "Reads/Writes discount data")
+
+Rel(RecommendationService, recommendations, "Get recommendations")
+Rel(PaymentService, payments, "Manages payments")
+Rel(MoviesService, cinemas, "Manages movies")
+@enduml
